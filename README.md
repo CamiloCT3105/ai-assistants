@@ -1,36 +1,199 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Módulo de Gestión de Asistentes IA
 
-## Getting Started
+Prueba técnica – Funnelhot
+Aplicación web para crear, editar, eliminar y entrenar asistentes de IA simulados.
 
-First, run the development server:
+🚀 Instrucciones para correr el proyecto
+Requisitos
 
-```bash
+Node.js 18+
+
+npm o yarn
+
+Instalación
+git clone <url-del-repo>
+cd <nombre-del-proyecto>
+npm install
+# o
+yarn install
+
+Correr en desarrollo
 npm run dev
-# or
+# o
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Abrir en:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+http://localhost:3000
 
-## Learn More
+🧠 Decisiones técnicas
+Framework
 
-To learn more about Next.js, take a look at the following resources:
+Next.js (App Router)
+Permite rutas dinámicas como /assistant/[id] y una arquitectura moderna.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Lenguaje
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+TypeScript
+Para tipado fuerte, menos errores y mejor mantenibilidad.
 
-## Deploy on Vercel
+Estado
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Zustand
+Maneja:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Lista de asistentes
+
+Asistente seleccionado
+
+Estado del modal
+
+Historial de chat por asistente
+
+React Query
+Maneja:
+
+Fetch simulado
+
+Mutaciones CRUD
+
+Loading, error y success states
+
+Invalidación de queries
+
+UI
+
+Material UI
+Componentes accesibles y responsivos para enfocarse en lógica y UX.
+
+Servicios Mock
+
+CRUD en memoria
+
+Delays artificiales (300–500ms)
+
+10% de probabilidad de error al eliminar
+
+Datos se pierden al refrescar (intencional)
+
+✅ Características implementadas
+Página principal
+
+Listado en tarjetas
+
+Estado vacío
+
+Estados de carga y error
+
+Crear, editar, eliminar y entrenar asistentes
+
+Modal Crear / Editar (2 pasos)
+
+Paso 1:
+
+Nombre (mín. 3 caracteres)
+
+Idioma
+
+Tono
+
+Paso 2:
+
+Porcentaje de respuestas (suma 100%)
+
+Audio opcional
+
+Validaciones:
+
+No avanzar sin completar paso 1
+
+La suma debe ser 100%
+
+Mensajes claros de error
+
+Eliminación
+
+Confirmación antes de borrar
+
+Loading durante eliminación
+
+Mensaje de éxito
+
+Mensaje de error si falla
+
+Entrenamiento /assistant/[id]
+
+Info del asistente
+
+Layout:
+
+Izquierda: reglas
+
+Derecha: chat
+
+Entrenamiento:
+
+Textarea de reglas
+
+Guardado con loading y mensaje de éxito
+
+Chat simulado:
+
+Historial por asistente
+
+Envío de mensajes
+
+Reiniciar conversación
+
+Delay 1–2s
+
+Indicador “está escribiendo…”
+
+Respuestas cambian según reglas (formal, amigable, corto, largo)
+
+⚖️ Priorización
+
+Se priorizó:
+
+Cumplir todos los requerimientos funcionales
+
+Manejo correcto de estado
+
+UX clara
+
+Código defendible en entrevista
+
+Se dejó fuera o simplificado:
+
+Persistencia real
+
+Autenticación
+
+Integración con IA real
+
+Diseño pixel-perfect
+
+Para enfocarse en:
+
+Arquitectura
+
+Lógica
+
+Estados
+
+Experiencia de usuario
+
+⏱ Tiempo aproximado
+
+Análisis de requerimientos: ~1 hora
+
+Estructura base y CRUD: ~3 horas
+
+Modal 2 pasos + validaciones: ~3 horas
+
+Página de entrenamiento + chat: ~4 horas
+
+UX, confirmaciones y feedback visual: ~2 horas
+
+Total aproximado: 13 horas
