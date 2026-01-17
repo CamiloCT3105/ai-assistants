@@ -1,65 +1,148 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import {
+  Button,
+  Container,
+  Stack,
+  Typography,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+
+import { fetchAssistants, deleteAssistant } from "../services/assitants.service";
+import { Assistant } from "@/src/types/assistant";
+import AssistantCard from "../components/assistants/AssistantCard";
+import CreateAssistantModal from "@/src/components/modal/CreateAssistantModal";
+import { useAssistantsStore } from "@/src/store/assistants.store";
+
+export default function HomePage() {
+  const { openCreateModal } = useAssistantsStore();
+  const queryClient = useQueryClient();
+
+  const [toDelete, setToDelete] = useState<Assistant | null>(null);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  /**Obtener asistentes*/
+  const { data: assistants = [], isLoading, isError } = useQuery<Assistant[]>({
+    queryKey: ["assistants"],
+    queryFn: fetchAssistants,
+  });
+
+  /**Eliminar asistente*/
+  const deleteMutation = useMutation({
+    mutationFn: deleteAssistant,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["assistants"] });
+      setSuccessMsg("Asistente eliminado correctamente");
+      setToDelete(null);
+    },
+    onError: () => {
+      setErrorMsg("Error al eliminar el asistente");
+    },
+  });
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <Container sx={{ py: 4 }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
+        <Typography variant="h4">Asistentes</Typography>
+
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={openCreateModal}
+        >
+          Crear asistente
+        </Button>
+      </Stack>
+
+      {isLoading && (
+        <Stack direction="row" spacing={1} alignItems="center">
+          <CircularProgress size={20} />
+          <Typography>Cargando asistentes...</Typography>
+        </Stack>
+      )}
+
+      {isError && (
+        <Typography color="error">Error al cargar asistentes</Typography>
+      )}
+
+      {!isLoading && assistants.length === 0 && (
+        <Typography color="text.secondary">
+          No hay asistentes creados.
+        </Typography>
+      )}
+
+      <Stack spacing={2}>
+        {assistants.map((assistant) => (
+          <AssistantCard
+            key={assistant.id}
+            assistant={assistant}
+            onDelete={() => setToDelete(assistant)}   // 👈 ahora pide confirmación
+            loading={deleteMutation.isPending}
+          />
+        ))}
+      </Stack>
+
+      {/*Modal de creación/edición*/}
+      <CreateAssistantModal />
+
+      {/*Confirmación de eliminación*/}
+      <Dialog open={!!toDelete} onClose={() => setToDelete(null)}>
+        <DialogTitle>Confirmar eliminación</DialogTitle>
+        <DialogContent>
+          <Typography>
+            ¿Seguro que deseas eliminar el asistente{" "}
+            <b>{toDelete?.name}</b>?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setToDelete(null)}>Cancelar</Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={() => toDelete && deleteMutation.mutate(toDelete.id)}
+            disabled={deleteMutation.isPending}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            {deleteMutation.isPending ? (
+              <CircularProgress size={20} />
+            ) : (
+              "Eliminar"
+            )}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/*Mensaje éxito*/}
+      <Snackbar
+        open={!!successMsg}
+        autoHideDuration={3000}
+        onClose={() => setSuccessMsg("")}
+      >
+        <Alert severity="success">{successMsg}</Alert>
+      </Snackbar>
+
+      {/*Mensaje error*/}
+      <Snackbar
+        open={!!errorMsg}
+        autoHideDuration={3000}
+        onClose={() => setErrorMsg("")}
+      >
+        <Alert severity="error">{errorMsg}</Alert>
+      </Snackbar>
+    </Container>
   );
 }
